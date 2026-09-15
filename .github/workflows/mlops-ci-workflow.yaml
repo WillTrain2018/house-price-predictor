@@ -33,9 +33,9 @@ jobs:
       - name: Do Feature Engineering
         run: |
           python src/features/engineering.py \
-           --input data/processed/cleaned_house_data.csv \
-           --output data/processed/featured_house_data.csv \
-           --preprocessor models/trained/preprocessor.pkl
+            --input data/processed/cleaned_house_data.csv \
+            --output data/processed/featured_house_data.csv \
+            --preprocessor models/trained/preprocessor.pkl
 
       - name: Train the Model
         run: |
