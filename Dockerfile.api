@@ -1,5 +1,7 @@
 FROM python:3.11-slim
 
+ENV PIP_ROOT_USER_ACTION=ignore
+
 WORKDIR /app
 
 COPY src/api/ /app/
