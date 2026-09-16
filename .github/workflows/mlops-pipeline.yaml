@@ -46,11 +46,16 @@ jobs:
 
     - name: Process data
       run: |
-        python src/data/run_processing.py --input data/raw/house_data.csv --output data/processed/cleaned_house_data.csv
+        python src/data/run_processing.py \
+        --input data/raw/house_data.csv \
+        --output data/processed/cleaned_house_data.csv
 
     - name: Engineer features
       run: |
-        python src/features/engineer.py --input data/processed/cleaned_house_data.csv --output data/processed/featured_house_data.csv
+        python src/features/engineer.py \
+        --input data/processed/cleaned_house_data.csv \
+        --output data/processed/featured_house_data.csv \
+        --preprocessor models/trained/preprocessor.pkl
 
     - name: Upload processed data
       uses: actions/upload-artifact@v4
@@ -91,7 +96,9 @@ jobs:
     - name: Set up MLflow
       run: |
         docker pull ghcr.io/mlflow/mlflow:latest
-        docker run -d -p 5565:5000 --name mlflow-server ghcr.io/mlflow/mlflow:latest mlflow server --host 0.0.0.0 --backend-store-uri sqlite:///mlflow.db
+        docker run -d -p 5565:5000 \
+        --name mlflow-server ghcr.io/mlflow/mlflow:latest mlflow server \
+        --host 0.0.0.0 --backend-store-uri sqlite:///mlflow.db
 
     - name: Wait for MLflow to start
       run: |
@@ -102,7 +109,10 @@ jobs:
     - name: Train model
       run: |
         mkdir -p models
-        python src/models/train_model.py --config configs/model_config.yaml --data data/processed/featured_house_data.csv --models-dir models
+        python src/models/train_model.py \
+        --config configs/model_config.yaml \
+        --data data/processed/featured_house_data.csv \
+        --models-dir models
 
     - name: Upload trained model
       uses: actions/upload-artifact@v4
