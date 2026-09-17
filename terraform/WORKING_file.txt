@@ -1,0 +1,137 @@
+=====================================================================
+Chat Transcript
+=====================================================================
+
+USER:
+Provide a terraform script to launch ec2 instance.  Instance type is t3.micro . AMI is ubuntu 22.04 LTS
+
+ASSISTANT:
+No existing Terraform setup — I'll create a new `terraform/` directory with a
+script to launch a t3.micro EC2 instance using the latest Ubuntu 22.04 LTS AMI
+(looked up dynamically via a data source rather than hardcoded, since AMI IDs
+vary by region and change over time).
+
+Created a `terraform/` directory with three files:
+
+- terraform/main.tf — provider config, a data source that resolves the latest
+  official Ubuntu 22.04 LTS AMI (Canonical's owner ID), and the `t3.micro`
+  `aws_instance` resource.
+- terraform/variables.tf — region, instance name, key pair, security groups,
+  subnet (all with sensible defaults so `terraform apply` works out of the box
+  in a default VPC).
+- terraform/outputs.tf — instance ID, public IP, resolved AMI ID.
+
+To use it:
+    cd terraform
+    terraform init
+    terraform apply
+
+Note: no key pair or security group is set by default, so you won't get SSH
+access until you pass `-var key_name=your-key -var 'security_group_ids=["sg-xxxx"]'`
+(or edit the defaults).
+
+---------------------------------------------------------------------
+File: terraform/main.tf
+---------------------------------------------------------------------
+terraform {
+  required_version = ">= 1.3"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+}
+
+# Latest Ubuntu 22.04 LTS (Jammy) AMI, published by Canonical (owner ID 099720109477)
+data "aws_ami" "ubuntu_22_04" {
+  most_recent = true
+  owners      = ["099720109477"]
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
+resource "aws_instance" "this" {
+  ami                    = data.aws_ami.ubuntu_22_04.id
+  instance_type          = "t3.micro"
+  key_name               = var.key_name
+  vpc_security_group_ids = var.security_group_ids
+  subnet_id              = var.subnet_id
+
+  tags = {
+    Name = var.instance_name
+  }
+}
+
+---------------------------------------------------------------------
+File: terraform/variables.tf
+---------------------------------------------------------------------
+variable "aws_region" {
+  description = "AWS region to launch the instance in"
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "instance_name" {
+  description = "Value for the Name tag on the instance"
+  type        = string
+  default     = "house-price-predictor"
+}
+
+variable "key_name" {
+  description = "Name of an existing EC2 key pair for SSH access (leave null for none)"
+  type        = string
+  default     = null
+}
+
+variable "security_group_ids" {
+  description = "List of security group IDs to attach to the instance"
+  type        = list(string)
+  default     = []
+}
+
+variable "subnet_id" {
+  description = "Subnet ID to launch the instance in (leave null to use the default VPC/subnet)"
+  type        = string
+  default     = null
+}
+
+---------------------------------------------------------------------
+File: terraform/outputs.tf
+---------------------------------------------------------------------
+output "instance_id" {
+  description = "ID of the EC2 instance"
+  value       = aws_instance.this.id
+}
+
+output "public_ip" {
+  description = "Public IP address of the EC2 instance"
+  value       = aws_instance.this.public_ip
+}
+
+output "ami_id" {
+  description = "AMI ID used for the instance"
+  value       = data.aws_ami.ubuntu_22_04.id
+}
+
+=====================================================================
+USER:
+copy this chat and your responses into file "WORKING_file.txt" under the
+"terraform/" directory.
+
+ASSISTANT:
+(this file)
+=====================================================================
