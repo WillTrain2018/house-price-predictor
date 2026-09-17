@@ -42,3 +42,7 @@ dist/
 # Ignore all .pkl files (models, preprocessors, etc.)
 *.pkl
 
+# Ignore private keys and Terraform's local plugin cache
+*.pem
+terraform/.terraform/
+
