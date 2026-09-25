@@ -10,20 +10,26 @@ variable "instance_name" {
   default     = "house-price-predictor"
 }
 
+variable "vpc_cidr" {
+  description = "CIDR block for the ml-coursera VPC"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "subnet_cidr" {
+  description = "CIDR block for the ml-coursera public subnet"
+  type        = string
+  default     = "10.0.1.0/24"
+}
+
+variable "availability_zone" {
+  description = "Availability zone for the ml-coursera subnet"
+  type        = string
+  default     = "us-east-1a"
+}
+
 variable "key_name" {
-  description = "Name of an existing EC2 key pair for SSH access (leave null for none)"
+  description = "Name of the existing EC2 key pair for SSH access"
   type        = string
-  default     = null
-}
-
-variable "security_group_ids" {
-  description = "List of security group IDs to attach to the instance"
-  type        = list(string)
-  default     = []
-}
-
-variable "subnet_id" {
-  description = "Subnet ID to launch the instance in (leave null to use the default VPC/subnet)"
-  type        = string
-  default     = null
+  default     = "house-price-predictor-20260917"
 }

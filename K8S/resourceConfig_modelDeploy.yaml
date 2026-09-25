@@ -1,0 +1,14 @@
+spec:
+  containers:
+  - image: joecoursera/house-price-model:latest
+    name: house-price-model
+    ports:
+    - containerPort: 8000
+    # Add the following specification to define resource requests and limits for the container
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "64Mi"
+      limits:
+        cpu: "100m"
+        memory: "128Mi"
