@@ -46,3 +46,6 @@ dist/
 *.pem
 terraform/.terraform/
 
+
+# Ignore downloaded CLI binaries (e.g. argocd.exe)
+*.exe
