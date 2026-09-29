@@ -1,27 +1,27 @@
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: fastapi-scaledobject
+  name: fastapi-latency-autoscaler
   namespace: default
 spec:
   scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
     name: model
   minReplicaCount: 2
   maxReplicaCount: 6
-  pollingInterval: 15
-  cooldownPeriod: 75
+  pollingInterval: 30
+  cooldownPeriod: 300
   triggers:
   - type: prometheus
     metadata:
       serverAddress: http://prom-kube-prometheus-stack-prometheus.monitoring.svc:9090
-      metricName: fastapi_latency_p99
+      metricName: fastapi_latency_p95
       query:
-        histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{app="model"}[1m])) by (le))
-      threshold: "0.098"
-  - type: prometheus
+        histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{app="model"}[1m])) by (le))
+      threshold: "0.5"
+  - type: cpu
+    metricType: Utilization
     metadata:
-      serverAddress: http://prom-kube-prometheus-stack-prometheus.monitoring.svc:9090
-      metricName: request_rate
-      query:
-        sum(rate(http_requests_total{app="model"}[1m]))
-      threshold: "500 "  
+      value: "50"
+     
